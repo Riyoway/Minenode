@@ -9,9 +9,9 @@ namespace Minenode.Desktop.Controls;
 
 public sealed class NodeCanvas : UserControl
 {
-    private const double NodeWidth = 210;
-    private const double HeaderHeight = 52;
-    private const double PortRowHeight = 24;
+    private const double NodeWidth = 220;
+    private const double HeaderHeight = 56;
+    private const double PortRowHeight = 28;
 
     private readonly Grid _root = new();
     private readonly Canvas _surface = new();
@@ -31,11 +31,14 @@ public sealed class NodeCanvas : UserControl
     public NodeCanvas()
     {
         _connections = new ConnectionLayer(this) { IsHitTestVisible = false };
+
+        _root.Background = new SolidColorBrush(Color.Parse("#0D1015"));
+        _root.Children.Add(new CanvasGridLayer { IsHitTestVisible = false });
         _root.Children.Add(_connections);
         _root.Children.Add(_surface);
         Content = _root;
 
-        _surface.Background = new SolidColorBrush(Color.Parse("#111111"));
+        _surface.Background = Brushes.Transparent;
         _surface.PointerPressed += (_, e) =>
         {
             if (e.Source == _surface)
@@ -76,8 +79,8 @@ public sealed class NodeCanvas : UserControl
             }
         }
 
-        var offset = 40 * (_workflow.Nodes.Count % 8);
-        var node = NodeRegistry.Create(type, 280 + offset, 100 + offset);
+        var offset = 42 * (_workflow.Nodes.Count % 8);
+        var node = NodeRegistry.Create(type, 290 + offset, 110 + offset);
         _workflow.Nodes.Add(node);
         AddNodeView(node);
         SelectNode(node);
@@ -128,41 +131,16 @@ public sealed class NodeCanvas : UserControl
         var root = new Border
         {
             Width = NodeWidth,
-            Background = new SolidColorBrush(Color.Parse("#1A1A1A")),
-            BorderBrush = new SolidColorBrush(Color.Parse("#3A3A3A")),
+            Background = new SolidColorBrush(Color.Parse("#171B21")),
+            BorderBrush = new SolidColorBrush(Color.Parse("#2B323C")),
             BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(8),
+            CornerRadius = new CornerRadius(10),
             Padding = new Thickness(0),
             ClipToBounds = true
         };
 
         var panel = new StackPanel { Spacing = 0 };
-        var header = new Border
-        {
-            Height = HeaderHeight,
-            Background = new SolidColorBrush(Color.Parse("#232323")),
-            Padding = new Thickness(12, 7),
-            Child = new StackPanel
-            {
-                Spacing = 1,
-                Children =
-                {
-                    new TextBlock
-                    {
-                        Text = definition.Title,
-                        FontWeight = FontWeight.SemiBold,
-                        FontSize = 14
-                    },
-                    new TextBlock
-                    {
-                        Text = definition.Category,
-                        Opacity = 0.58,
-                        FontSize = 11
-                    }
-                }
-            }
-        };
-
+        var header = CreateHeader(definition);
         panel.Children.Add(header);
 
         var maxPorts = Math.Max(definition.Inputs.Count, definition.Outputs.Count);
@@ -191,6 +169,15 @@ public sealed class NodeCanvas : UserControl
             }
 
             panel.Children.Add(row);
+        }
+
+        if (maxPorts == 0)
+        {
+            panel.Children.Add(new Border
+            {
+                Height = 10,
+                Background = Brushes.Transparent
+            });
         }
 
         root.Child = panel;
@@ -222,8 +209,8 @@ public sealed class NodeCanvas : UserControl
                 return;
 
             var point = e.GetPosition(_surface);
-            node.X = Math.Max(0, point.X - pointerOffset.X);
-            node.Y = Math.Max(0, point.Y - pointerOffset.Y);
+            node.X = Math.Max(8, point.X - pointerOffset.X);
+            node.Y = Math.Max(8, point.Y - pointerOffset.Y);
             Canvas.SetLeft(root, node.X);
             Canvas.SetTop(root, node.Y);
             _connections.InvalidateVisual();
@@ -247,17 +234,91 @@ public sealed class NodeCanvas : UserControl
         _views[node.Id] = root;
     }
 
+    private static Border CreateHeader(NodeDefinition definition)
+    {
+        var categoryAccent = definition.Category switch
+        {
+            "Account" => "#93A7C8",
+            "Connection" => "#7DA8B7",
+            "Trigger" => "#86B69B",
+            "Logic" => "#A99BC5",
+            "Utility" => "#A8AEB8",
+            "Action" => "#C3A07A",
+            _ => "#8D96A3"
+        };
+
+        var title = new TextBlock
+        {
+            Text = definition.Title,
+            FontWeight = FontWeight.SemiBold,
+            FontSize = 13,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        var badge = new Border
+        {
+            Background = new SolidColorBrush(Color.Parse("#20252C")),
+            BorderBrush = new SolidColorBrush(Color.Parse("#2D343E")),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(8),
+            Padding = new Thickness(7, 2),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Child = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 5,
+                Children =
+                {
+                    new Border
+                    {
+                        Width = 6,
+                        Height = 6,
+                        CornerRadius = new CornerRadius(3),
+                        Background = new SolidColorBrush(Color.Parse(categoryAccent)),
+                        VerticalAlignment = VerticalAlignment.Center
+                    },
+                    new TextBlock
+                    {
+                        Text = definition.Category,
+                        Foreground = new SolidColorBrush(Color.Parse("#99A2AF")),
+                        FontSize = 9,
+                        VerticalAlignment = VerticalAlignment.Center
+                    }
+                }
+            }
+        };
+
+        return new Border
+        {
+            Height = HeaderHeight,
+            Background = new SolidColorBrush(Color.Parse("#1B2027")),
+            BorderBrush = new SolidColorBrush(Color.Parse("#252B34")),
+            BorderThickness = new Thickness(0, 0, 0, 1),
+            Padding = new Thickness(11, 7),
+            Child = new Grid
+            {
+                ColumnDefinitions = new ColumnDefinitions("*,Auto"),
+                Children =
+                {
+                    title,
+                    badge
+                }
+            }
+        }.Tap(header => Grid.SetColumn(badge, 1));
+    }
+
     private Control CreatePort(NodeModel node, PortDefinition port, bool isOutput)
     {
+        var portColor = port.Type == "bot" ? "#8FB8FF" : "#8D96A3";
         var dot = new Border
         {
-            Width = 12,
-            Height = 12,
+            Width = 11,
+            Height = 11,
             CornerRadius = new CornerRadius(6),
-            Background = new SolidColorBrush(Color.Parse(port.Type == "bot" ? "#B8B8B8" : "#737373")),
-            BorderBrush = new SolidColorBrush(Color.Parse("#E3E3E3")),
-            BorderThickness = new Thickness(1),
-            Margin = new Thickness(6, 0)
+            Background = new SolidColorBrush(Color.Parse("#11151A")),
+            BorderBrush = new SolidColorBrush(Color.Parse(portColor)),
+            BorderThickness = new Thickness(2),
+            Margin = new Thickness(7, 0)
         };
 
         dot.PointerPressed += (_, e) =>
@@ -269,9 +330,9 @@ public sealed class NodeCanvas : UserControl
         var label = new TextBlock
         {
             Text = port.Label,
-            FontSize = 11,
+            FontSize = 10,
             VerticalAlignment = VerticalAlignment.Center,
-            Opacity = 0.75
+            Foreground = new SolidColorBrush(Color.Parse("#A5AEB9"))
         };
 
         var panel = new StackPanel
@@ -348,10 +409,9 @@ public sealed class NodeCanvas : UserControl
 
         foreach (var pair in _views)
         {
-            pair.Value.BorderBrush = new SolidColorBrush(Color.Parse(
-                node is not null && pair.Key == node.Id ? "#E6E6E6" : "#3A3A3A"));
-            pair.Value.BorderThickness = new Thickness(
-                node is not null && pair.Key == node.Id ? 2 : 1);
+            var selected = node is not null && pair.Key == node.Id;
+            pair.Value.BorderBrush = new SolidColorBrush(Color.Parse(selected ? "#8FB8FF" : "#2B323C"));
+            pair.Value.BorderThickness = new Thickness(selected ? 1.5 : 1);
         }
 
         SelectedNodeChanged?.Invoke(node);
@@ -377,13 +437,29 @@ public sealed class NodeCanvas : UserControl
         return new Point(x, y);
     }
 
+    private sealed class CanvasGridLayer : Control
+    {
+        public override void Render(DrawingContext context)
+        {
+            base.Render(context);
+
+            const double spacing = 24;
+            var dot = new SolidColorBrush(Color.Parse("#20262E"));
+            for (double x = spacing; x < Bounds.Width; x += spacing)
+            {
+                for (double y = spacing; y < Bounds.Height; y += spacing)
+                    context.DrawEllipse(dot, null, new Point(x, y), 0.8, 0.8);
+            }
+        }
+    }
+
     private sealed class ConnectionLayer(NodeCanvas owner) : Control
     {
         public override void Render(DrawingContext context)
         {
             base.Render(context);
 
-            var pen = new Pen(new SolidColorBrush(Color.Parse("#777777")), 2);
+            var pen = new Pen(new SolidColorBrush(Color.Parse("#637082")), 2);
             foreach (var connection in owner._workflow.Connections)
             {
                 if (!owner._workflow.Nodes.Any(x => x.Id == connection.SourceNode) ||
@@ -392,12 +468,31 @@ public sealed class NodeCanvas : UserControl
 
                 var start = owner.GetPortPoint(connection.SourceNode, connection.SourcePort, output: true);
                 var end = owner.GetPortPoint(connection.TargetNode, connection.TargetPort, output: false);
-                var middleX = start.X + ((end.X - start.X) / 2);
+                var distance = Math.Max(50, Math.Abs(end.X - start.X) * 0.5);
 
-                context.DrawLine(pen, start, new Point(middleX, start.Y));
-                context.DrawLine(pen, new Point(middleX, start.Y), new Point(middleX, end.Y));
-                context.DrawLine(pen, new Point(middleX, end.Y), end);
+                var geometry = new StreamGeometry();
+                using (var path = geometry.Open())
+                {
+                    path.BeginFigure(start, isFilled: false);
+                    path.CubicBezierTo(
+                        new Point(start.X + distance, start.Y),
+                        new Point(end.X - distance, end.Y),
+                        end,
+                        isStroked: true);
+                    path.EndFigure(isClosed: false);
+                }
+
+                context.DrawGeometry(null, pen, geometry);
             }
         }
+    }
+}
+
+internal static class ControlExtensions
+{
+    public static T Tap<T>(this T value, Action<T> action)
+    {
+        action(value);
+        return value;
     }
 }
