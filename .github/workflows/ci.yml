@@ -13,7 +13,18 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - run: dotnet restore src/Minenode.Desktop/Minenode.Desktop.csproj
-      - run: dotnet build src/Minenode.Desktop/Minenode.Desktop.csproj --configuration Release --no-restore
+      - name: Build desktop
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet build src/Minenode.Desktop/Minenode.Desktop.csproj --configuration Release --no-restore 2>&1 | tee desktop-build.log
+      - name: Upload desktop build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-build-log
+          path: desktop-build.log
+          if-no-files-found: ignore
 
   runtime:
     runs-on: ubuntu-latest
