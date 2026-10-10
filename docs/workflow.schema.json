@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://minenode.local/schema/workflow-v1.json",
+  "title": "Minenode Workflow",
+  "type": "object",
+  "required": ["format", "version", "name", "nodes", "connections"],
+  "properties": {
+    "format": { "const": "minenode-workflow" },
+    "version": { "const": 1 },
+    "name": { "type": "string" },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "x", "y", "config"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "type": { "enum": ["account.microsoft", "connection.join", "trigger.onSpawn", "trigger.onChat", "logic.if", "utility.wait", "utility.setVariable", "utility.log", "action.sendChat", "action.sendCommand", "action.disconnect"] },
+          "x": { "type": "number" },
+          "y": { "type": "number" },
+          "config": { "type": "object", "additionalProperties": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    },
+    "connections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "sourceNode", "sourcePort", "targetNode", "targetPort"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "sourceNode": { "type": "string", "minLength": 1 },
+          "sourcePort": { "type": "string", "minLength": 1 },
+          "targetNode": { "type": "string", "minLength": 1 },
+          "targetPort": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

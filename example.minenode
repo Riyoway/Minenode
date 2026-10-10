@@ -1,0 +1,18 @@
+{
+  "format": "minenode-workflow",
+  "version": 1,
+  "name": "Ping Bot",
+  "nodes": [
+    { "id": "account", "type": "account.microsoft", "x": 60, "y": 80, "config": { "username": "account@example.com" } },
+    { "id": "join", "type": "connection.join", "x": 320, "y": 80, "config": { "host": "localhost", "port": "25565", "version": "auto" } },
+    { "id": "chat", "type": "trigger.onChat", "x": 580, "y": 80, "config": {} },
+    { "id": "if", "type": "logic.if", "x": 840, "y": 80, "config": { "left": "{{message}}", "operator": "contains", "right": "!ping" } },
+    { "id": "reply", "type": "action.sendChat", "x": 1100, "y": 80, "config": { "message": "pong!" } }
+  ],
+  "connections": [
+    { "id": "c1", "sourceNode": "account", "sourcePort": "bot", "targetNode": "join", "targetPort": "bot" },
+    { "id": "c2", "sourceNode": "join", "sourcePort": "bot", "targetNode": "chat", "targetPort": "bot" },
+    { "id": "c3", "sourceNode": "chat", "sourcePort": "flow", "targetNode": "if", "targetPort": "flow" },
+    { "id": "c4", "sourceNode": "if", "sourcePort": "true", "targetNode": "reply", "targetPort": "flow" }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "minenode-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Mineflayer execution runtime for Minenode workflows",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "mineflayer": "4.39.0"
+  }
+}
