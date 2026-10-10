@@ -40,6 +40,14 @@ Minenode Runtime (Node.js)
 
 The UI does not embed a web frontend or Electron runtime. Mineflayer remains in a separate Node.js process because it is part of the PrismarineJS ecosystem and can be restarted independently from the editor.
 
+## Editor controls
+
+A new workflow starts with one Microsoft Account node. Configure its account identifier before adding other node types. Additional Microsoft Account nodes can be added for multi-account workflows, while the final account node cannot be removed.
+
+Nodes are added from the left palette and moved by dragging their headers. Select an output port and then a compatible input port to create a connection. `Bot` ports only connect to `Bot` inputs and `Flow` ports only connect to `Flow` inputs. Node settings are edited in the inspector on the right.
+
+The toolbar provides New, Import, Save, Export, Delete node, Run, and Stop actions. Save keeps working on the current `.minenode` file, while Export writes a separate portable copy.
+
 ## Workflow model
 
 A workflow is a versioned JSON document. Nodes store their type, canvas position, and configuration. Connections store source and target node/port identifiers.
