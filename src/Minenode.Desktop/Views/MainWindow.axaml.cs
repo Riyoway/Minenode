@@ -278,7 +278,7 @@ public partial class MainWindow : Window
             var textBox = new TextBox
             {
                 Text = node.Config.GetValueOrDefault(field.Key, field.DefaultValue),
-                Watermark = field.Hint
+                PlaceholderText = field.Hint
             };
             textBox.TextChanged += (_, _) =>
             {
