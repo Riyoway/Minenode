@@ -1,7 +1,11 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using Material.Icons;
+using Material.Icons.Avalonia;
 using Minenode.Desktop.Models;
 using Minenode.Desktop.Services;
 
@@ -37,83 +41,239 @@ public partial class MainWindow : Window
         base.OnClosed(e);
     }
 
-    private void BuildPalette()
+    private void BuildPalette(string? filter = null)
     {
         PalettePanel.Children.Clear();
-        foreach (var group in NodeRegistry.All.GroupBy(x => x.Category))
+        var query = filter?.Trim() ?? string.Empty;
+
+        var matches = NodeRegistry.All
+            .Where(definition => string.IsNullOrWhiteSpace(query)
+                || definition.Title.Contains(query, StringComparison.OrdinalIgnoreCase)
+                || definition.Category.Contains(query, StringComparison.OrdinalIgnoreCase)
+                || definition.Type.Contains(query, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (matches.Count == 0)
         {
-            PalettePanel.Children.Add(new TextBlock
+            var empty = new TextBlock
+            {
+                Text = "No nodes match this search.",
+                FontSize = 11,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(4, 10)
+            };
+            empty.Classes.Add("muted");
+            PalettePanel.Children.Add(empty);
+            return;
+        }
+
+        foreach (var group in matches.GroupBy(x => x.Category))
+        {
+            var category = new TextBlock
             {
                 Text = group.Key.ToUpperInvariant(),
-                FontSize = 10,
-                Opacity = 0.48,
-                Margin = new Avalonia.Thickness(2, 10, 0, 2)
-            });
+                Margin = new Thickness(4, 12, 0, 4)
+            };
+            category.Classes.Add("sectionLabel");
+            PalettePanel.Children.Add(category);
 
             foreach (var definition in group)
             {
+                var content = new Grid
+                {
+                    ColumnDefinitions = new ColumnDefinitions("28,*,Auto"),
+                    ColumnSpacing = 8
+                };
+
+                var iconHost = new Border
+                {
+                    Width = 28,
+                    Height = 28,
+                    CornerRadius = new CornerRadius(7),
+                    Background = new SolidColorBrush(Color.Parse("#181D24")),
+                    Child = CreateNodeIcon(definition.Type)
+                };
+                Grid.SetColumn(iconHost, 0);
+                content.Children.Add(iconHost);
+
+                var labels = new StackPanel
+                {
+                    Spacing = 0,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Children =
+                    {
+                        new TextBlock
+                        {
+                            Text = definition.Title,
+                            FontSize = 11,
+                            FontWeight = FontWeight.SemiBold
+                        },
+                        new TextBlock
+                        {
+                            Text = definition.Type,
+                            FontSize = 9,
+                            Foreground = new SolidColorBrush(Color.Parse("#6F7885"))
+                        }
+                    }
+                };
+                Grid.SetColumn(labels, 1);
+                content.Children.Add(labels);
+
+                var addIcon = CreateIcon("Plus", 14);
+                addIcon.Foreground = new SolidColorBrush(Color.Parse("#6F7885"));
+                Grid.SetColumn(addIcon, 2);
+                content.Children.Add(addIcon);
+
                 var button = new Button
                 {
-                    Content = definition.Title,
-                    HorizontalContentAlignment = HorizontalAlignment.Left,
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Content = content,
                     Tag = definition.Type
                 };
+                button.Classes.Add("nodePaletteButton");
                 button.Click += (_, _) => EditorCanvas.AddNode((string)button.Tag!);
                 PalettePanel.Children.Add(button);
             }
         }
     }
 
+    private static Control CreateNodeIcon(string nodeType)
+    {
+        var iconName = nodeType switch
+        {
+            "account.microsoft" => "AccountOutline",
+            "connection.join" => "ServerNetworkOutline",
+            "trigger.onSpawn" => "LoginVariant",
+            "trigger.onChat" => "MessageTextOutline",
+            "logic.if" => "SourceBranch",
+            "utility.wait" => "TimerSand",
+            "utility.setVariable" => "Variable",
+            "utility.log" => "TextBoxOutline",
+            "action.sendChat" => "MessageArrowRightOutline",
+            "action.sendCommand" => "Console",
+            "action.disconnect" => "Connection",
+            _ => "CircleOutline"
+        };
+
+        var icon = CreateIcon(iconName, 16);
+        icon.Foreground = new SolidColorBrush(Color.Parse("#AAB3BF"));
+        return icon;
+    }
+
+    private static MaterialIcon CreateIcon(string name, double size)
+    {
+        var icon = new MaterialIcon
+        {
+            Width = size,
+            Height = size,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        if (Enum.TryParse<MaterialIconKind>(name, ignoreCase: true, out var kind))
+            icon.Kind = kind;
+
+        return icon;
+    }
+
     private void ShowInspector(NodeModel? node)
     {
         InspectorPanel.Children.Clear();
-        InspectorPanel.Children.Add(new TextBlock
-        {
-            Text = "Inspector",
-            FontSize = 16,
-            FontWeight = Avalonia.Media.FontWeight.SemiBold
-        });
 
         if (node is null)
         {
             InspectorPanel.Children.Add(new TextBlock
             {
-                Text = "Select a node to edit its settings.",
-                Opacity = 0.55,
-                TextWrapping = Avalonia.Media.TextWrapping.Wrap
+                Text = "Nothing selected",
+                FontSize = 13,
+                FontWeight = FontWeight.SemiBold
             });
+
+            var hint = new TextBlock
+            {
+                Text = "Select a node on the canvas to inspect and edit its configuration.",
+                FontSize = 11,
+                TextWrapping = TextWrapping.Wrap
+            };
+            hint.Classes.Add("muted");
+            InspectorPanel.Children.Add(hint);
             return;
         }
 
         var definition = NodeRegistry.Get(node.Type);
-        InspectorPanel.Children.Add(new TextBlock
+
+        var heading = new Grid
         {
-            Text = definition.Title,
-            FontSize = 14,
-            Margin = new Avalonia.Thickness(0, 4, 0, 8)
+            ColumnDefinitions = new ColumnDefinitions("36,*"),
+            ColumnSpacing = 10,
+            Margin = new Thickness(0, 0, 0, 8)
+        };
+
+        heading.Children.Add(new Border
+        {
+            Width = 36,
+            Height = 36,
+            CornerRadius = new CornerRadius(9),
+            Background = new SolidColorBrush(Color.Parse("#181D24")),
+            Child = CreateNodeIcon(node.Type)
         });
+
+        var titleStack = new StackPanel
+        {
+            Spacing = 1,
+            VerticalAlignment = VerticalAlignment.Center,
+            Children =
+            {
+                new TextBlock
+                {
+                    Text = definition.Title,
+                    FontSize = 13,
+                    FontWeight = FontWeight.SemiBold
+                },
+                new TextBlock
+                {
+                    Text = definition.Category,
+                    FontSize = 10,
+                    Foreground = new SolidColorBrush(Color.Parse("#8D96A3"))
+                }
+            }
+        };
+        Grid.SetColumn(titleStack, 1);
+        heading.Children.Add(titleStack);
+        InspectorPanel.Children.Add(heading);
+
+        var typeLabel = new TextBlock
+        {
+            Text = node.Type,
+            FontSize = 10,
+            FontFamily = new FontFamily("Cascadia Mono, Consolas, monospace"),
+            Foreground = new SolidColorBrush(Color.Parse("#707987")),
+            Margin = new Thickness(0, 0, 0, 8)
+        };
+        InspectorPanel.Children.Add(typeLabel);
 
         if (definition.Fields.Count == 0)
         {
-            InspectorPanel.Children.Add(new TextBlock
+            var noFields = new TextBlock
             {
                 Text = "This node has no configurable fields.",
-                Opacity = 0.55,
-                TextWrapping = Avalonia.Media.TextWrapping.Wrap
-            });
+                FontSize = 11,
+                TextWrapping = TextWrapping.Wrap
+            };
+            noFields.Classes.Add("muted");
+            InspectorPanel.Children.Add(noFields);
             return;
         }
 
         foreach (var field in definition.Fields)
         {
-            InspectorPanel.Children.Add(new TextBlock
+            var label = new TextBlock
             {
                 Text = field.Label,
-                FontSize = 11,
-                Opacity = 0.75,
-                Margin = new Avalonia.Thickness(0, 6, 0, 0)
-            });
+                FontSize = 10,
+                FontWeight = FontWeight.SemiBold,
+                Margin = new Thickness(1, 7, 0, 0)
+            };
+            InspectorPanel.Children.Add(label);
 
             var textBox = new TextBox
             {
@@ -130,15 +290,34 @@ public partial class MainWindow : Window
 
             if (!string.IsNullOrWhiteSpace(field.Hint))
             {
-                InspectorPanel.Children.Add(new TextBlock
+                var hint = new TextBlock
                 {
                     Text = field.Hint,
-                    FontSize = 10,
-                    Opacity = 0.45,
-                    TextWrapping = Avalonia.Media.TextWrapping.Wrap
-                });
+                    FontSize = 9,
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(1, -2, 0, 0)
+                };
+                hint.Classes.Add("muted");
+                InspectorPanel.Children.Add(hint);
             }
         }
+    }
+
+    private void NodeSearch_TextChanged(object? sender, TextChangedEventArgs e) =>
+        BuildPalette(NodeSearchBox.Text);
+
+    private void Minimize_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) =>
+        WindowState = WindowState.Minimized;
+
+    private void Maximize_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) =>
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+
+    private void Close_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => Close();
+
+    private void ClearLog_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        LogBox.Text = string.Empty;
+        SetStatus("Log cleared");
     }
 
     private void New_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
