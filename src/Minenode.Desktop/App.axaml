@@ -1,8 +1,11 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="Minenode.Desktop.App"
              RequestedThemeVariant="Dark">
   <Application.Styles>
-    <FluentTheme />
+    <FluentTheme DensityStyle="Compact" />
+    <materialIcons:MaterialIconStyles />
+    <StyleInclude Source="avares://Minenode.Desktop/Styles/MinenodeTheme.axaml" />
   </Application.Styles>
 </Application>
