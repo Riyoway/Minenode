@@ -99,7 +99,7 @@
 
           <Grid Grid.Row="1" Margin="0,0,0,10">
             <TextBox x:Name="NodeSearchBox"
-                     Watermark="Search nodes"
+                     PlaceholderText="Search nodes"
                      TextChanged="NodeSearch_TextChanged"
                      Padding="34,8,10,8" />
             <materialIcons:MaterialIcon Kind="Magnify" Width="16" Height="16"
@@ -200,8 +200,8 @@
                    IsReadOnly="True"
                    AcceptsReturn="True"
                    TextWrapping="NoWrap"
-                   HorizontalScrollBarVisibility="Auto"
-                   VerticalScrollBarVisibility="Auto"
+                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                    BorderThickness="0"
                    Background="Transparent"
                    Padding="4"
