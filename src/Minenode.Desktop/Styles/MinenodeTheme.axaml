@@ -1,0 +1,148 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Styles.Resources>
+    <Color x:Key="MnBackground">#0B0D10</Color>
+    <Color x:Key="MnSurface">#111419</Color>
+    <Color x:Key="MnSurfaceRaised">#171B21</Color>
+    <Color x:Key="MnSurfaceHover">#1D222A</Color>
+    <Color x:Key="MnBorder">#252B34</Color>
+    <Color x:Key="MnBorderStrong">#343C47</Color>
+    <Color x:Key="MnText">#F2F5F8</Color>
+    <Color x:Key="MnTextMuted">#8D96A3</Color>
+    <Color x:Key="MnAccent">#8FB8FF</Color>
+    <Color x:Key="MnAccentMuted">#1A2B46</Color>
+    <Color x:Key="MnSuccess">#75D59B</Color>
+    <Color x:Key="MnDanger">#EF7D86</Color>
+
+    <SolidColorBrush x:Key="MnBackgroundBrush" Color="{StaticResource MnBackground}" />
+    <SolidColorBrush x:Key="MnSurfaceBrush" Color="{StaticResource MnSurface}" />
+    <SolidColorBrush x:Key="MnSurfaceRaisedBrush" Color="{StaticResource MnSurfaceRaised}" />
+    <SolidColorBrush x:Key="MnSurfaceHoverBrush" Color="{StaticResource MnSurfaceHover}" />
+    <SolidColorBrush x:Key="MnBorderBrush" Color="{StaticResource MnBorder}" />
+    <SolidColorBrush x:Key="MnBorderStrongBrush" Color="{StaticResource MnBorderStrong}" />
+    <SolidColorBrush x:Key="MnTextBrush" Color="{StaticResource MnText}" />
+    <SolidColorBrush x:Key="MnTextMutedBrush" Color="{StaticResource MnTextMuted}" />
+    <SolidColorBrush x:Key="MnAccentBrush" Color="{StaticResource MnAccent}" />
+    <SolidColorBrush x:Key="MnAccentMutedBrush" Color="{StaticResource MnAccentMuted}" />
+    <SolidColorBrush x:Key="MnSuccessBrush" Color="{StaticResource MnSuccess}" />
+    <SolidColorBrush x:Key="MnDangerBrush" Color="{StaticResource MnDanger}" />
+  </Styles.Resources>
+
+  <Style Selector="TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource MnTextBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.muted">
+    <Setter Property="Foreground" Value="{DynamicResource MnTextMutedBrush}" />
+  </Style>
+
+  <Style Selector="TextBlock.sectionLabel">
+    <Setter Property="Foreground" Value="{DynamicResource MnTextMutedBrush}" />
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="LetterSpacing" Value="1.2" />
+  </Style>
+
+  <Style Selector="Border.surface">
+    <Setter Property="Background" Value="{DynamicResource MnSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MnBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="12" />
+  </Style>
+
+  <Style Selector="Button">
+    <Setter Property="Foreground" Value="{DynamicResource MnTextBrush}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="12,7" />
+    <Setter Property="MinHeight" Value="34" />
+  </Style>
+
+  <Style Selector="Button:pointerover">
+    <Setter Property="Background" Value="{DynamicResource MnSurfaceHoverBrush}" />
+  </Style>
+
+  <Style Selector="Button:pressed">
+    <Setter Property="Background" Value="{DynamicResource MnBorderBrush}" />
+  </Style>
+
+  <Style Selector="Button.iconButton">
+    <Setter Property="Width" Value="38" />
+    <Setter Property="Height" Value="38" />
+    <Setter Property="MinHeight" Value="38" />
+    <Setter Property="Padding" Value="9" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+
+  <Style Selector="Button.railButton">
+    <Setter Property="Width" Value="42" />
+    <Setter Property="Height" Value="42" />
+    <Setter Property="MinHeight" Value="42" />
+    <Setter Property="Padding" Value="10" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Foreground" Value="{DynamicResource MnTextMutedBrush}" />
+  </Style>
+
+  <Style Selector="Button.railButton:pointerover">
+    <Setter Property="Foreground" Value="{DynamicResource MnTextBrush}" />
+  </Style>
+
+  <Style Selector="Button.primary">
+    <Setter Property="Background" Value="{DynamicResource MnAccentBrush}" />
+    <Setter Property="Foreground" Value="#09111E" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MnAccentBrush}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <Style Selector="Button.primary:pointerover">
+    <Setter Property="Opacity" Value="0.9" />
+  </Style>
+
+  <Style Selector="Button.stop">
+    <Setter Property="Foreground" Value="{DynamicResource MnTextMutedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MnBorderStrongBrush}" />
+  </Style>
+
+  <Style Selector="Button.nodePaletteButton">
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="Padding" Value="10,8" />
+    <Setter Property="Margin" Value="0,1" />
+  </Style>
+
+  <Style Selector="Button.titleButton">
+    <Setter Property="Width" Value="44" />
+    <Setter Property="Height" Value="34" />
+    <Setter Property="MinHeight" Value="34" />
+    <Setter Property="Padding" Value="12,8" />
+    <Setter Property="CornerRadius" Value="6" />
+  </Style>
+
+  <Style Selector="Button.titleButton.close:pointerover">
+    <Setter Property="Background" Value="#C42B35" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+
+  <Style Selector="TextBox">
+    <Setter Property="Foreground" Value="{DynamicResource MnTextBrush}" />
+    <Setter Property="Background" Value="{DynamicResource MnSurfaceRaisedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MnBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="10,8" />
+    <Setter Property="MinHeight" Value="36" />
+    <Setter Property="SelectionBrush" Value="{DynamicResource MnAccentMutedBrush}" />
+  </Style>
+
+  <Style Selector="TextBox:focus">
+    <Setter Property="BorderBrush" Value="{DynamicResource MnAccentBrush}" />
+  </Style>
+
+  <Style Selector="ScrollViewer">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+</Styles>
